@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  # PostgreSQLデータベース
+  db:
+    image: postgres:15-alpine
+    container_name: sample-grpc-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: financial_development
+      TZ: Asia/Tokyo
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - grpc-network
+
+  # gRPCサーバー（本番用）
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sample-grpc-server
+    ports:
+      - "50051:50051"
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: financial_development
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_SSL_MODE: disable
+      SERVER_PORT: 50051
+      SERVER_HOST: 0.0.0.0
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - grpc-network
+    restart: unless-stopped
+
+  # gRPCサーバー（開発用）- profileで切り替え
+  server-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: sample-grpc-server-dev
+    ports:
+      - "50051:50051"
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: financial_development
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_SSL_MODE: disable
+      SERVER_PORT: 50051
+      SERVER_HOST: 0.0.0.0
+      RUN_MIGRATIONS: "true"
+      RUN_SEED: "true"
+    volumes:
+      - .:/app
+      - go_modules:/go/pkg/mod
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - grpc-network
+    profiles:
+      - dev
+
+  # Adminer（データベース管理UI）
+  adminer:
+    image: adminer:latest
+    container_name: sample-grpc-adminer
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    depends_on:
+      - db
+    networks:
+      - grpc-network
+    profiles:
+      - dev
+
+volumes:
+  postgres_data:
+    driver: local
+  go_modules:
+    driver: local
+
+networks:
+  grpc-network:
+    driver: bridge

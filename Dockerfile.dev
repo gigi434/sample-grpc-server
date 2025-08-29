@@ -1,0 +1,147 @@
+# 開発用Dockerfile - ホットリロード機能付き
+FROM golang:1.21-alpine
+
+# 開発に必要なパッケージをインストール
+RUN apk add --no-cache \
+    git \
+    make \
+    gcc \
+    musl-dev \
+    postgresql-client \
+    protobuf \
+    protobuf-dev \
+    curl \
+    bash \
+    vim \
+    jq
+
+# grpcurlをインストール（デバッグ用）
+RUN go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
+
+# airをインストール（ホットリロード用）
+RUN go install github.com/cosmtrek/air@latest
+
+# protocとprotoc-gen-goをインストール
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+# grpc-health-probeをインストール（ヘルスチェック用）
+RUN GRPC_HEALTH_PROBE_VERSION=v0.4.24 && \
+    wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
+    chmod +x /bin/grpc_health_probe
+
+# 作業ディレクトリを設定
+WORKDIR /app
+
+# go.modとgo.sumを先にコピー（キャッシュ効率化）
+COPY go.mod go.sum ./
+RUN go mod download
+
+# air設定ファイルを作成
+RUN cat <<EOF > .air.toml
+root = "."
+testdata_dir = "testdata"
+tmp_dir = "tmp"
+
+[build]
+  args_bin = []
+  bin = "./tmp/main"
+  cmd = "go build -o ./tmp/main ./cmd/server"
+  delay = 1000
+  exclude_dir = ["assets", "tmp", "vendor", "testdata", "docs", "scripts", ".git", ".github"]
+  exclude_file = []
+  exclude_regex = ["_test.go"]
+  exclude_unchanged = false
+  follow_symlink = false
+  full_bin = ""
+  include_dir = []
+  include_ext = ["go", "tpl", "tmpl", "html"]
+  include_file = []
+  kill_delay = "0s"
+  log = "build-errors.log"
+  poll = false
+  poll_interval = 0
+  post_cmd = []
+  pre_cmd = []
+  rerun = false
+  rerun_delay = 500
+  send_interrupt = false
+  stop_on_error = false
+
+[color]
+  app = ""
+  build = "yellow"
+  main = "magenta"
+  runner = "green"
+  watcher = "cyan"
+
+[log]
+  main_only = false
+  time = false
+
+[misc]
+  clean_on_exit = false
+
+[screen]
+  clear_on_rebuild = false
+  keep_scroll = true
+EOF
+
+# ソースコードをコピー
+COPY . .
+
+# Protocol Buffersのコード生成
+# RUN make proto
+
+# 開発用のエントリーポイントスクリプトを作成
+RUN cat <<'EOF' > /app/docker-entrypoint.sh
+#!/bin/bash
+set -e
+
+# 環境変数が設定されていない場合はデフォルト値を使用
+export DATABASE_HOST=${DATABASE_HOST:-db}
+export DATABASE_PORT=${DATABASE_PORT:-5432}
+export DATABASE_NAME=${DATABASE_NAME:-financial_development}
+export DATABASE_USERNAME=${DATABASE_USERNAME:-postgres}
+export DATABASE_PASSWORD=${DATABASE_PASSWORD:-postgres}
+export SERVER_PORT=${SERVER_PORT:-50051}
+
+# データベースが起動するまで待機
+echo "Waiting for database to be ready..."
+while ! pg_isready -h $DATABASE_HOST -p $DATABASE_PORT -U $DATABASE_USERNAME; do
+    echo "Database is not ready yet. Waiting..."
+    sleep 2
+done
+echo "Database is ready!"
+
+# マイグレーションを実行（必要な場合）
+if [ "$RUN_MIGRATIONS" = "true" ]; then
+    echo "Running migrations..."
+    go run cmd/migrate/main.go || true
+fi
+
+# シードデータを投入（必要な場合）
+if [ "$RUN_SEED" = "true" ]; then
+    echo "Running seed..."
+    go run cmd/seed/main.go
+fi
+
+# airでホットリロードを開始
+echo "Starting server with hot reload..."
+exec air
+EOF
+
+RUN chmod +x /app/docker-entrypoint.sh
+
+# ヘルスチェック
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD grpc_health_probe -addr=:50051 || exit 1
+
+# ポートを公開
+EXPOSE 50051
+
+# ボリューム設定（ソースコードの同期用）
+VOLUME ["/app"]
+
+# エントリーポイント
+ENTRYPOINT ["/app/docker-entrypoint.sh"]

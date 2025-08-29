@@ -1,0 +1,64 @@
+# Git
+.git
+.gitignore
+.github
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+tmp/
+
+# IDEとエディタ
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ビルド成果物
+bin/
+dist/
+build/
+
+# ログとテンポラリファイル
+*.log
+logs/
+temp/
+tmp/
+
+# 環境変数（例はコピー）
+.env
+.env.local
+.env.*.local
+
+# テストカバレッジ
+coverage.txt
+coverage.html
+*.coverprofile
+
+# Dockerファイル（ビルドコンテキストには不要）
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# ドキュメント
+docs/
+README.md
+LICENSE
+
+# Makefile
+Makefile
+
+# Air設定（開発用）
+.air.toml
+
+# その他
+.github/
+.devcontainer/

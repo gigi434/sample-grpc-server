@@ -143,6 +143,54 @@ docker-down: ## Stop Docker containers
 docker-logs: ## View Docker logs
 	$(DOCKER_COMPOSE) logs -f
 
+.PHONY: docker-dev
+docker-dev: ## Start development Docker containers with hot reload
+	@echo "$(GREEN)Starting development containers...$(NC)"
+	$(DOCKER_COMPOSE) --profile dev up -d
+	@echo "$(GREEN)Development containers started!$(NC)"
+	@echo "$(YELLOW)Server running with hot reload on port 50051$(NC)"
+	@echo "$(YELLOW)Adminer available at http://localhost:8080$(NC)"
+
+.PHONY: docker-dev-build
+docker-dev-build: ## Build development Docker image
+	@echo "$(GREEN)Building development Docker image...$(NC)"
+	$(DOCKER_COMPOSE) --profile dev build
+	@echo "$(GREEN)Development build complete!$(NC)"
+
+.PHONY: docker-dev-logs
+docker-dev-logs: ## View development server logs
+	$(DOCKER_COMPOSE) --profile dev logs -f server-dev
+
+.PHONY: docker-prod
+docker-prod: ## Build production Docker image with multi-stage build
+	@echo "$(GREEN)Building production Docker image...$(NC)"
+	docker build -t $(BINARY_NAME):prod -f Dockerfile .
+	@echo "$(GREEN)Production image built!$(NC)"
+	@echo "Image size: $$(docker images $(BINARY_NAME):prod --format 'table {{.Size}}')"
+
+.PHONY: docker-prod-run
+docker-prod-run: ## Run production Docker container
+	@echo "$(GREEN)Running production container...$(NC)"
+	docker run -d \
+		--name $(BINARY_NAME)-prod \
+		-p 50051:50051 \
+		--env-file .env \
+		$(BINARY_NAME):prod
+	@echo "$(GREEN)Production container running on port 50051!$(NC)"
+
+.PHONY: docker-prod-stop
+docker-prod-stop: ## Stop production Docker container
+	@echo "$(YELLOW)Stopping production container...$(NC)"
+	docker stop $(BINARY_NAME)-prod && docker rm $(BINARY_NAME)-prod
+	@echo "$(GREEN)Production container stopped!$(NC)"
+
+.PHONY: docker-clean
+docker-clean: ## Remove all Docker resources for this project
+	@echo "$(RED)Removing all Docker resources...$(NC)"
+	$(DOCKER_COMPOSE) down -v --remove-orphans
+	docker rmi -f $(BINARY_NAME):latest $(BINARY_NAME):prod 2>/dev/null || true
+	@echo "$(GREEN)Docker cleanup complete!$(NC)"
+
 .PHONY: db-start
 db-start: ## Start PostgreSQL database container
 	@echo "$(GREEN)Starting PostgreSQL container...$(NC)"

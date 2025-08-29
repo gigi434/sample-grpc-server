@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package common;
+
+option go_package = "github.com/gigi434/sample-grpc-server/pkg/generated/api/common";
+
+// Status represents a generic status response
+message Status {
+  // Status code
+  int32 code = 1;
+  
+  // Status message
+  string message = 2;
+  
+  // Additional details
+  map<string, string> details = 3;
+}
+
+// Empty represents an empty message
+message Empty {}

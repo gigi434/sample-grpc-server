@@ -1,0 +1,184 @@
+{
+  "users": [
+    {
+      "email": "admin@example.com",
+      "username": "admin",
+      "first_name": "Admin",
+      "last_name": "User",
+      "password": "Admin123!@#",
+      "is_active": true,
+      "is_admin": true
+    },
+    {
+      "email": "john.doe@example.com",
+      "username": "johndoe",
+      "first_name": "John",
+      "last_name": "Doe",
+      "password": "Password123!",
+      "is_active": true,
+      "is_admin": false
+    },
+    {
+      "email": "jane.smith@example.com",
+      "username": "janesmith",
+      "first_name": "Jane",
+      "last_name": "Smith",
+      "password": "Password123!",
+      "is_active": true,
+      "is_admin": false
+    },
+    {
+      "email": "bob.wilson@example.com",
+      "username": "bobwilson",
+      "first_name": "Bob",
+      "last_name": "Wilson",
+      "password": "Password123!",
+      "is_active": true,
+      "is_admin": false
+    },
+    {
+      "email": "alice.johnson@example.com",
+      "username": "alicejohnson",
+      "first_name": "Alice",
+      "last_name": "Johnson",
+      "password": "Password123!",
+      "is_active": true,
+      "is_admin": false
+    },
+    {
+      "email": "charlie.brown@example.com",
+      "username": "charliebrown",
+      "first_name": "Charlie",
+      "last_name": "Brown",
+      "password": "Password123!",
+      "is_active": true,
+      "is_admin": false
+    },
+    {
+      "email": "diana.prince@example.com",
+      "username": "dianaprince",
+      "first_name": "Diana",
+      "last_name": "Prince",
+      "password": "Password123!",
+      "is_active": true,
+      "is_admin": false
+    },
+    {
+      "email": "evan.davis@example.com",
+      "username": "evandavis",
+      "first_name": "Evan",
+      "last_name": "Davis",
+      "password": "Password123!",
+      "is_active": true,
+      "is_admin": false
+    },
+    {
+      "email": "fiona.green@example.com",
+      "username": "fionagreen",
+      "first_name": "Fiona",
+      "last_name": "Green",
+      "password": "Password123!",
+      "is_active": false,
+      "is_admin": false
+    },
+    {
+      "email": "george.miller@example.com",
+      "username": "georgemiller",
+      "first_name": "George",
+      "last_name": "Miller",
+      "password": "Password123!",
+      "is_active": false,
+      "is_admin": false
+    },
+    {
+      "email": "helen.white@example.com",
+      "username": "helenwhite",
+      "first_name": "Helen",
+      "last_name": "White",
+      "password": "Password123!",
+      "is_active": true,
+      "is_admin": false
+    },
+    {
+      "email": "ivan.petrov@example.com",
+      "username": "ivanpetrov",
+      "first_name": "Ivan",
+      "last_name": "Petrov",
+      "password": "Password123!",
+      "is_active": true,
+      "is_admin": false
+    },
+    {
+      "email": "julia.roberts@example.com",
+      "username": "juliaroberts",
+      "first_name": "Julia",
+      "last_name": "Roberts",
+      "password": "Password123!",
+      "is_active": true,
+      "is_admin": false
+    },
+    {
+      "email": "kevin.hart@example.com",
+      "username": "kevinhart",
+      "first_name": "Kevin",
+      "last_name": "Hart",
+      "password": "Password123!",
+      "is_active": true,
+      "is_admin": false
+    },
+    {
+      "email": "lisa.anderson@example.com",
+      "username": "lisaanderson",
+      "first_name": "Lisa",
+      "last_name": "Anderson",
+      "password": "Password123!",
+      "is_active": true,
+      "is_admin": false
+    },
+    {
+      "email": "michael.jordan@example.com",
+      "username": "michaeljordan",
+      "first_name": "Michael",
+      "last_name": "Jordan",
+      "password": "Password123!",
+      "is_active": true,
+      "is_admin": false
+    },
+    {
+      "email": "nancy.taylor@example.com",
+      "username": "nancytaylor",
+      "first_name": "Nancy",
+      "last_name": "Taylor",
+      "password": "Password123!",
+      "is_active": true,
+      "is_admin": false
+    },
+    {
+      "email": "oliver.stone@example.com",
+      "username": "oliverstone",
+      "first_name": "Oliver",
+      "last_name": "Stone",
+      "password": "Password123!",
+      "is_active": true,
+      "is_admin": false
+    },
+    {
+      "email": "patricia.lee@example.com",
+      "username": "patricialee",
+      "first_name": "Patricia",
+      "last_name": "Lee",
+      "password": "Password123!",
+      "is_active": true,
+      "is_admin": false
+    },
+    {
+      "email": "developer@example.com",
+      "username": "developer",
+      "first_name": "Dev",
+      "last_name": "User",
+      "password": "Dev123!@#",
+      "is_active": true,
+      "is_admin": true
+    }
+  ]
+}

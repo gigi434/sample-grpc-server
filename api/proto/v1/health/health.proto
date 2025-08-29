@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package health.v1;
+
+option go_package = "github.com/gigi434/sample-grpc-server/pkg/generated/api/v1/health";
+
+import "google/protobuf/timestamp.proto";
+
+// HealthService provides health check functionality
+service HealthService {
+  // Check performs a health check
+  rpc Check(HealthCheckRequest) returns (HealthCheckResponse);
+  
+  // Watch performs a health check and returns a stream of health status
+  rpc Watch(HealthCheckRequest) returns (stream HealthCheckResponse);
+}
+
+// HealthCheckRequest represents a health check request
+message HealthCheckRequest {
+  // Service name to check (optional, checks all if empty)
+  string service = 1;
+}
+
+// HealthCheckResponse represents a health check response
+message HealthCheckResponse {
+  // Overall health status
+  ServingStatus status = 1;
+  
+  // Timestamp of the check
+  google.protobuf.Timestamp checked_at = 2;
+  
+  // Version information
+  string version = 3;
+  
+  // Uptime in seconds
+  int64 uptime_seconds = 4;
+  
+  // Service-specific health status
+  map<string, ServiceHealth> services = 5;
+}
+
+// ServingStatus represents the serving status of a service
+enum ServingStatus {
+  SERVING_STATUS_UNSPECIFIED = 0;
+  SERVING_STATUS_SERVING = 1;
+  SERVING_STATUS_NOT_SERVING = 2;
+  SERVING_STATUS_SERVICE_UNKNOWN = 3;
+}
+
+// ServiceHealth represents the health status of a specific service
+message ServiceHealth {
+  // Service name
+  string name = 1;
+  
+  // Service status
+  ServingStatus status = 2;
+  
+  // Additional details
+  string message = 3;
+  
+  // Last check timestamp
+  google.protobuf.Timestamp last_checked = 4;
+  
+  // Service dependencies health
+  map<string, DependencyHealth> dependencies = 5;
+}
+
+// DependencyHealth represents the health status of a dependency
+message DependencyHealth {
+  // Dependency name
+  string name = 1;
+  
+  // Dependency type (database, cache, external_api, etc.)
+  string type = 2;
+  
+  // Health status
+  ServingStatus status = 3;
+  
+  // Response time in milliseconds
+  int64 response_time_ms = 4;
+  
+  // Additional details
+  string message = 5;
+}

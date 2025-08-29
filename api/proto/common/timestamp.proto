@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package common;
+
+option go_package = "github.com/gigi434/sample-grpc-server/pkg/generated/api/common";
+
+import "google/protobuf/timestamp.proto";
+
+// Timestamps represents creation and update timestamps
+message Timestamps {
+  // Creation timestamp
+  google.protobuf.Timestamp created_at = 1;
+  
+  // Last update timestamp
+  google.protobuf.Timestamp updated_at = 2;
+  
+  // Deletion timestamp (for soft deletes)
+  optional google.protobuf.Timestamp deleted_at = 3;
+}

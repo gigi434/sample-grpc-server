@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package common;
+
+option go_package = "github.com/gigi434/sample-grpc-server/pkg/generated/api/common";
+
+// PaginationRequest represents pagination parameters for list requests
+message PaginationRequest {
+  // Page number (1-based)
+  int32 page = 1;
+  
+  // Number of items per page
+  int32 page_size = 2;
+  
+  // Field to sort by
+  string sort_by = 3;
+  
+  // Sort order: "asc" or "desc"
+  string sort_order = 4;
+}
+
+// PaginationResponse represents pagination metadata in responses
+message PaginationResponse {
+  // Current page number
+  int32 page = 1;
+  
+  // Number of items per page
+  int32 page_size = 2;
+  
+  // Total number of items
+  int32 total_items = 3;
+  
+  // Total number of pages
+  int32 total_pages = 4;
+  
+  // Whether there is a next page
+  bool has_next = 5;
+  
+  // Whether there is a previous page
+  bool has_previous = 6;
+}

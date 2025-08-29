@@ -1,0 +1,301 @@
+syntax = "proto3";
+
+package user.v1;
+
+option go_package = "github.com/gigi434/sample-grpc-server/pkg/generated/api/v1/user";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "common/pagination.proto";
+import "common/status.proto";
+
+// UserService provides CRUD operations for users
+service UserService {
+  // CreateUser creates a new user
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  
+  // GetUser retrieves a user by ID
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  
+  // ListUsers retrieves a list of users with pagination
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  
+  // UpdateUser updates an existing user
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+  
+  // DeleteUser deletes a user (soft delete)
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+  
+  // BatchGetUsers retrieves multiple users by IDs
+  rpc BatchGetUsers(BatchGetUsersRequest) returns (BatchGetUsersResponse);
+  
+  // SearchUsers searches users by various criteria
+  rpc SearchUsers(SearchUsersRequest) returns (SearchUsersResponse);
+  
+  // ChangePassword changes a user's password
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+  
+  // AuthenticateUser authenticates a user with email/username and password
+  rpc AuthenticateUser(AuthenticateUserRequest) returns (AuthenticateUserResponse);
+}
+
+// User represents a user entity
+message User {
+  // Unique identifier (UUID)
+  string id = 1;
+  
+  // Email address
+  string email = 2;
+  
+  // Username
+  string username = 3;
+  
+  // First name
+  string first_name = 4;
+  
+  // Last name
+  string last_name = 5;
+  
+  // Full name (computed)
+  string full_name = 6;
+  
+  // Whether the user is active
+  bool is_active = 7;
+  
+  // Whether the user is an admin
+  bool is_admin = 8;
+  
+  // User status
+  UserStatus status = 9;
+  
+  // Creation timestamp
+  google.protobuf.Timestamp created_at = 10;
+  
+  // Last update timestamp
+  google.protobuf.Timestamp updated_at = 11;
+  
+  // Deletion timestamp (for soft deletes)
+  google.protobuf.Timestamp deleted_at = 12;
+}
+
+// UserStatus represents the status of a user
+enum UserStatus {
+  USER_STATUS_UNSPECIFIED = 0;
+  USER_STATUS_ACTIVE = 1;
+  USER_STATUS_INACTIVE = 2;
+  USER_STATUS_SUSPENDED = 3;
+}
+
+// CreateUserRequest represents a request to create a new user
+message CreateUserRequest {
+  // Email address (required)
+  string email = 1;
+  
+  // Username (required)
+  string username = 2;
+  
+  // Password (required)
+  string password = 3;
+  
+  // First name (required)
+  string first_name = 4;
+  
+  // Last name (required)
+  string last_name = 5;
+  
+  // Whether the user is active (optional, default: true)
+  optional bool is_active = 6;
+  
+  // Whether the user is an admin (optional, default: false)
+  optional bool is_admin = 7;
+}
+
+// CreateUserResponse represents a response to a create user request
+message CreateUserResponse {
+  // Created user
+  User user = 1;
+}
+
+// GetUserRequest represents a request to get a user
+message GetUserRequest {
+  // User ID (UUID)
+  string id = 1;
+}
+
+// GetUserResponse represents a response to a get user request
+message GetUserResponse {
+  // Retrieved user
+  User user = 1;
+}
+
+// ListUsersRequest represents a request to list users
+message ListUsersRequest {
+  // Pagination parameters
+  common.PaginationRequest pagination = 1;
+  
+  // Filter parameters
+  ListUsersFilter filter = 2;
+}
+
+// ListUsersFilter represents filter options for listing users
+message ListUsersFilter {
+  // Filter by email (partial match)
+  optional string email = 1;
+  
+  // Filter by username (partial match)
+  optional string username = 2;
+  
+  // Filter by active status
+  optional bool is_active = 3;
+  
+  // Filter by admin status
+  optional bool is_admin = 4;
+  
+  // Filter by user status
+  optional UserStatus status = 5;
+}
+
+// ListUsersResponse represents a response to a list users request
+message ListUsersResponse {
+  // List of users
+  repeated User users = 1;
+  
+  // Pagination metadata
+  common.PaginationResponse pagination = 2;
+}
+
+// UpdateUserRequest represents a request to update a user
+message UpdateUserRequest {
+  // User ID (UUID)
+  string id = 1;
+  
+  // Fields to update (uses field mask)
+  google.protobuf.FieldMask update_mask = 2;
+  
+  // Email address
+  optional string email = 3;
+  
+  // Username
+  optional string username = 4;
+  
+  // First name
+  optional string first_name = 5;
+  
+  // Last name
+  optional string last_name = 6;
+  
+  // Whether the user is active
+  optional bool is_active = 7;
+  
+  // Whether the user is an admin
+  optional bool is_admin = 8;
+}
+
+// UpdateUserResponse represents a response to an update user request
+message UpdateUserResponse {
+  // Updated user
+  User user = 1;
+}
+
+// DeleteUserRequest represents a request to delete a user
+message DeleteUserRequest {
+  // User ID (UUID)
+  string id = 1;
+  
+  // Whether to hard delete (default: false, soft delete)
+  bool hard_delete = 2;
+}
+
+// DeleteUserResponse represents a response to a delete user request
+message DeleteUserResponse {
+  // Success status
+  bool success = 1;
+  
+  // Response message
+  string message = 2;
+}
+
+// BatchGetUsersRequest represents a request to get multiple users
+message BatchGetUsersRequest {
+  // List of user IDs
+  repeated string ids = 1;
+}
+
+// BatchGetUsersResponse represents a response to a batch get users request
+message BatchGetUsersResponse {
+  // Map of user ID to user
+  map<string, User> users = 1;
+  
+  // List of not found user IDs
+  repeated string not_found = 2;
+}
+
+// SearchUsersRequest represents a request to search users
+message SearchUsersRequest {
+  // Search query (searches in email, username, first name, last name)
+  string query = 1;
+  
+  // Pagination parameters
+  common.PaginationRequest pagination = 2;
+  
+  // Additional filters
+  ListUsersFilter filter = 3;
+}
+
+// SearchUsersResponse represents a response to a search users request
+message SearchUsersResponse {
+  // List of matching users
+  repeated User users = 1;
+  
+  // Pagination metadata
+  common.PaginationResponse pagination = 2;
+  
+  // Total matches
+  int32 total_matches = 3;
+}
+
+// ChangePasswordRequest represents a request to change a user's password
+message ChangePasswordRequest {
+  // User ID (UUID)
+  string user_id = 1;
+  
+  // Current password
+  string old_password = 2;
+  
+  // New password
+  string new_password = 3;
+}
+
+// ChangePasswordResponse represents a response to a change password request
+message ChangePasswordResponse {
+  // Success status
+  bool success = 1;
+  
+  // Response message
+  string message = 2;
+}
+
+// AuthenticateUserRequest represents a request to authenticate a user
+message AuthenticateUserRequest {
+  // Email or username
+  string identifier = 1;
+  
+  // Password
+  string password = 2;
+}
+
+// AuthenticateUserResponse represents a response to an authenticate user request
+message AuthenticateUserResponse {
+  // Authenticated user (if successful)
+  User user = 1;
+  
+  // Authentication success status
+  bool success = 2;
+  
+  // Response message
+  string message = 3;
+  
+  // Authentication token (optional, for future use)
+  optional string token = 4;
+}
